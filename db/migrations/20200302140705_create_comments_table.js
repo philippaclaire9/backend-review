@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable("comments", tableBuilder => {
-    tableBuilder.integer("comment_id").primary();
+    tableBuilder.increments("comment_id").primary();
     tableBuilder
       .string("author")
       .references("users.username")
