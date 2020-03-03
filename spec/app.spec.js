@@ -6,6 +6,9 @@ const app = require("../app");
 const connection = require("../db/connection");
 
 describe("nc_news_api", () => {
+  beforeEach(function() {
+    return connection.seed.run();
+  });
   describe("/api", () => {
     describe("/topics", () => {
       describe("GET", () => {
@@ -56,8 +59,7 @@ describe("nc_news_api", () => {
                 "votes",
                 "topic",
                 "author",
-                "created_at",
-                "comment_count"
+                "created_at"
               );
               expect(article).to.be.an("object");
             });
@@ -78,6 +80,27 @@ describe("nc_news_api", () => {
               expect(msg).to.equal("Sorry, Bad Request!");
             });
         });
+      });
+      describe("PATCH", () => {
+        it("status 200: will return a treasure with updated votes property", () => {
+          return request(app)
+            .patch("/api/articles/3")
+            .send({ inc_votes: 5 })
+            .expect(200)
+            .then(({ body: { article } }) => {
+              expect(article).to.contain.keys(
+                "article_id",
+                "title",
+                "body",
+                "votes",
+                "topic",
+                "author",
+                "created_at"
+              );
+              expect(article.votes).to.equal(5);
+            });
+        });
+        //NOW START ERROR HANDLING WITH PATCH REQUEST!!!
       });
     });
   });
