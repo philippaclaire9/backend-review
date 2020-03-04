@@ -15,12 +15,6 @@ exports.getArticleById = (req, res, next) => {
 
 exports.patchArticle = (req, res, next) => {
   const { article_id } = req.params;
-  if (Object.keys(req.body).length > 1) {
-    return Promise.reject({
-      status: 400,
-      msg: "Bad request, too many keys"
-    }).catch(next);
-  }
 
   const { inc_votes } = req.body;
 
@@ -33,6 +27,7 @@ exports.patchArticle = (req, res, next) => {
 
 exports.postComment = (req, res, next) => {
   const { article_id } = req.params;
+
   const newComment = req.body;
   createComment(article_id, newComment)
     .then(comment => {

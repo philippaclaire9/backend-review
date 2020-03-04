@@ -49,7 +49,7 @@ describe("nc_news_api", () => {
       describe("GET", () => {
         it("status 200: will retrieve article by id", () => {
           return request(app)
-            .get("/api/articles/3")
+            .get("/api/articles/9")
             .expect(200)
             .then(({ body: { article } }) => {
               expect(article).to.contain.keys(
@@ -59,9 +59,11 @@ describe("nc_news_api", () => {
                 "votes",
                 "topic",
                 "author",
-                "created_at"
+                "created_at",
+                "comment_count"
               );
               expect(article).to.be.an("object");
+              expect(article.comment_count).to.equal("2");
             });
         });
         it("status 404: resource does not exist", () => {
@@ -81,7 +83,7 @@ describe("nc_news_api", () => {
             });
         });
       });
-      describe("PATCH", () => {
+      describe.only("PATCH", () => {
         it("status 200: will return a treasure with increased votes property", () => {
           return request(app)
             .patch("/api/articles/3")
@@ -118,22 +120,22 @@ describe("nc_news_api", () => {
               expect(article.votes).to.equal(-5);
             });
         });
-        it("status 404: incorrect keys on patch body, returns not found", () => {
+        it.only("status 200: incorrect key, votes not changed", () => {
           return request(app)
             .patch("/api/articles/3")
             .send({ increase_votes: 5 })
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).to.equal("oops, not found (key added incorrectly)");
+            .expect(200)
+            .then(({ body: { article } }) => {
+              expect(article.votes).to.equal(0);
             });
         });
-        it("status 404: missing key, returns not found", () => {
+        it("status 200: missing key, votes not changed", () => {
           return request(app)
             .patch("/api/articles/3")
             .send({})
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).to.equal("oops, not found (key added incorrectly)");
+            .expect(200)
+            .then(({ body: { article } }) => {
+              expect(article.votes).to.equal(0);
             });
         });
         it("status 400: incorrect data type on key value", () => {
@@ -155,12 +157,12 @@ describe("nc_news_api", () => {
             });
         });
       });
-      describe.only("POST", () => {
+      describe("POST", () => {
         it("status 201: new comment is created and returned", () => {
           return request(app)
             .post("/api/articles/3/comments")
             .send({
-              username: "philibobs",
+              username: "butter_bridge",
               body: "well that's given me food for thought"
             })
             .expect(201);

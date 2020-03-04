@@ -18,8 +18,9 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  res.status(err.status).send({ msg: err.msg });
-  next(err);
+  if (err.status) {
+    res.status(err.status).send({ msg: err.msg });
+  } else next(err);
 });
 
 app.use((err, req, res, next) => {
