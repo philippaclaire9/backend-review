@@ -83,7 +83,7 @@ describe("nc_news_api", () => {
             });
         });
       });
-      describe.only("PATCH", () => {
+      describe("PATCH", () => {
         it("status 200: will return a treasure with increased votes property", () => {
           return request(app)
             .patch("/api/articles/3")
@@ -120,13 +120,13 @@ describe("nc_news_api", () => {
               expect(article.votes).to.equal(-5);
             });
         });
-        it.only("status 200: incorrect key, votes not changed", () => {
+        it("status 200: incorrect key, votes not changed", () => {
           return request(app)
-            .patch("/api/articles/3")
+            .patch("/api/articles/1")
             .send({ increase_votes: 5 })
             .expect(200)
             .then(({ body: { article } }) => {
-              expect(article.votes).to.equal(0);
+              expect(article.votes).to.equal(100);
             });
         });
         it("status 200: missing key, votes not changed", () => {
@@ -147,17 +147,17 @@ describe("nc_news_api", () => {
               expect(msg).to.equal("Sorry, Bad Request!");
             });
         });
-        it("status 400: unwanted keys on response body, returns Bad Request", () => {
+        it("status 200: unwanted keys on response body, ignores unwanted key and returns increased votes", () => {
           return request(app)
             .patch("/api/articles/3")
             .send({ inc_votes: 2, hello_there: 3 })
-            .expect(400)
-            .then(({ body: { msg } }) => {
-              expect(msg).to.equal("Bad request, too many keys");
+            .expect(200)
+            .then(({ body: { article } }) => {
+              expect(article.votes).to.equal(2);
             });
         });
       });
-      describe("POST", () => {
+      describe.only("POST", () => {
         it("status 201: new comment is created and returned", () => {
           return request(app)
             .post("/api/articles/3/comments")
@@ -165,8 +165,17 @@ describe("nc_news_api", () => {
               username: "butter_bridge",
               body: "well that's given me food for thought"
             })
-            .expect(201);
+            .expect(201)
+            .then(({ body: { comment } }) => {
+              expect(comment.body).to.equal(
+                "well that's given me food for thought"
+              );
+              //expect(comment.created_at).to.be.an.instanceof(Date);
+            });
         });
+        //it("status 400: incorrect data type on key value", ()=>{
+        //return request(app).post("/api/articles/3/comments").send({})
+        //})
       });
     });
   });

@@ -31,7 +31,7 @@ exports.postComment = (req, res, next) => {
   const newComment = req.body;
   createComment(article_id, newComment)
     .then(comment => {
-      res.sendStatus(201);
+      res.status(201).send({ comment });
     })
     .catch(next);
 };

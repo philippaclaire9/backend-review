@@ -20,22 +20,19 @@ exports.selectArticleById = article_id => {
     });
 };
 
-exports.updateArticle = (article_id, voteChange) => {
-  console.log(voteChange);
-
+exports.updateArticle = (article_id, voteChange = 0) => {
   return connection
     .from("articles")
     .where("article_id", article_id)
     .increment("votes", voteChange)
     .returning("*")
     .then(([article]) => {
-      console.log(article);
+      //console.log(article);
       return article;
     });
 };
 
 exports.createComment = (article_id, newComment) => {
-  console.log(article_id);
   return connection
     .from("comments")
     .insert(
@@ -43,8 +40,7 @@ exports.createComment = (article_id, newComment) => {
         {
           author: newComment.username,
           body: newComment.body,
-          article_id,
-          created_at: new Date()
+          article_id
         }
       ],
       ["comment_id"]
