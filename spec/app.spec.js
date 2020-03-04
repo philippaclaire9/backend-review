@@ -45,7 +45,7 @@ describe("nc_news_api", () => {
         });
       });
     });
-    describe.only("/articles", () => {
+    describe("/articles", () => {
       describe("GET", () => {
         it("status 200: will retrieve article by id", () => {
           return request(app)
@@ -81,8 +81,8 @@ describe("nc_news_api", () => {
             });
         });
       });
-      describe("PATCH", () => {
-        it("status 200: will return a treasure with updated votes property", () => {
+      describe.only("PATCH", () => {
+        it("status 200: will return a treasure with increased votes property", () => {
           return request(app)
             .patch("/api/articles/3")
             .send({ inc_votes: 5 })
@@ -100,7 +100,60 @@ describe("nc_news_api", () => {
               expect(article.votes).to.equal(5);
             });
         });
-        //NOW START ERROR HANDLING WITH PATCH REQUEST!!!
+        it("status 200: will return a treasure with decreased votes property", () => {
+          return request(app)
+            .patch("/api/articles/3")
+            .send({ inc_votes: -5 })
+            .expect(200)
+            .then(({ body: { article } }) => {
+              expect(article).to.contain.keys(
+                "article_id",
+                "title",
+                "body",
+                "votes",
+                "topic",
+                "author",
+                "created_at"
+              );
+              expect(article.votes).to.equal(-5);
+            });
+        });
+        it("status 404: incorrect keys on patch body, returns not found", () => {
+          return request(app)
+            .patch("/api/articles/3")
+            .send({ increase_votes: 5 })
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("oops, not found (key added incorrectly)");
+            });
+        });
+        it("status 404: missing key, returns not found", () => {
+          return request(app)
+            .patch("/api/articles/3")
+            .send({})
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("oops, not found (key added incorrectly)");
+            });
+        });
+        it("status 400: incorrect data type on key value", () => {
+          return request(app)
+            .patch("/api/articles/3")
+            .send({ inc_votes: "seven" })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Sorry, Bad Request!");
+            });
+        });
+        it("status 400: unwanted keys on response body, returns Bad Request", () => {
+          return request(app)
+            .patch("/api/articles/3")
+            .send({ inc_votes: 2, hello_there: 3 })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Bad request, too many keys");
+            });
+        });
       });
     });
   });

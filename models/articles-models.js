@@ -12,14 +12,19 @@ exports.selectArticleById = article_id => {
     });
 };
 
-exports.updateArticle = (article_id, voteIncrease) => {
+exports.updateArticle = (article_id, voteChange) => {
+  if (!voteChange)
+    return Promise.reject({
+      msg: "oops, not found (key added incorrectly)",
+      status: 404
+    });
+
   return connection
-    .select("*")
     .from("articles")
     .where("article_id", article_id)
+    .increment("votes", voteChange)
+    .returning("*")
     .then(([article]) => {
-      article.votes += voteIncrease;
-
       return article;
     });
 };

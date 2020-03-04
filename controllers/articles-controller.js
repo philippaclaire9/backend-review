@@ -14,9 +14,18 @@ exports.getArticleById = (req, res, next) => {
 
 exports.patchArticle = (req, res, next) => {
   const { article_id } = req.params;
+  if (Object.keys(req.body).length > 1) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request, too many keys"
+    }).catch(next);
+  }
+
   const { inc_votes } = req.body;
 
-  updateArticle(article_id, inc_votes).then(article => {
-    res.status(200).send({ article });
-  });
+  updateArticle(article_id, inc_votes)
+    .then(article => {
+      res.status(200).send({ article });
+    })
+    .catch(next);
 };
