@@ -28,3 +28,18 @@ exports.updateArticle = (article_id, voteChange) => {
       return article;
     });
 };
+
+exports.createComment = (article_id, newComment) => {
+  return connection
+    .from("articles")
+    .where("article_id", article_id)
+    .insert(
+      [{ author: newComment.username, body: newComment.body }],
+      ["comment_id"]
+    )
+    .into("comments")
+    .returning("*")
+    .then(([comment]) => {
+      console.log(comment);
+    });
+};

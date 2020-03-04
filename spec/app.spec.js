@@ -81,7 +81,7 @@ describe("nc_news_api", () => {
             });
         });
       });
-      describe.only("PATCH", () => {
+      describe("PATCH", () => {
         it("status 200: will return a treasure with increased votes property", () => {
           return request(app)
             .patch("/api/articles/3")
@@ -153,6 +153,17 @@ describe("nc_news_api", () => {
             .then(({ body: { msg } }) => {
               expect(msg).to.equal("Bad request, too many keys");
             });
+        });
+      });
+      describe.only("POST", () => {
+        it("status 201: new comment is created and returned", () => {
+          return request(app)
+            .post("/api/articles/3/comments")
+            .send({
+              username: "philibobs",
+              body: "well that's given me food for thought"
+            })
+            .expect(201);
         });
       });
     });
