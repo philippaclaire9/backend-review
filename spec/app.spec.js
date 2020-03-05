@@ -48,7 +48,7 @@ describe("nc_news_api", () => {
       });
     });
     describe("/articles", () => {
-      describe.only("GET", () => {
+      describe("GET", () => {
         it("status 200: responds with array of articles objects", () => {
           return request(app)
             .get("/api/articles")
@@ -169,6 +169,23 @@ describe("nc_news_api", () => {
             .expect(400)
             .then(({ body: { msg } }) => {
               expect(msg).to.equal("Sorry, Bad Request!");
+            });
+        });
+        it("status 200: responds with empty array when no articles exist with the topic queried", () => {
+          return request(app)
+            .get("/api/articles?topic=paper")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.an("array");
+              expect(articles).to.have.lengthOf(0);
+            });
+        });
+        it("status 404: when topic does not exist, returns not found", () => {
+          return request(app)
+            .get("/api/articles?topic=sugar")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Sorry, path not found");
             });
         });
       });
@@ -460,6 +477,89 @@ describe("nc_news_api", () => {
         });
       });
     });
+    describe("/comments", () => {
+      describe("/:comments_id", () => {
+        describe("PATCH", () => {
+          it("status 200: responds with a comment with updated vote property", () => {
+            return request(app)
+              .patch("/api/comments/9")
+              .send({ inc_votes: 5 })
+              .expect(200)
+              .then(({ body: { comment } }) => {
+                expect(comment).to.contain.keys(
+                  "comment_id",
+                  "author",
+                  "article_id",
+                  "votes",
+                  "created_at",
+                  "body"
+                );
+                expect(comment).to.be.an("object");
+                expect(comment.votes).to.equal(5);
+              });
+          });
+          it("status 200: incorrect key, votes not changed", () => {
+            return request(app)
+              .patch("/api/comments/9")
+              .send({ increase_votes: 5 })
+              .expect(200)
+              .then(({ body: { comment } }) => {
+                expect(comment.votes).to.equal(0);
+              });
+          });
+          it("status 200: missing key, votes not changed", () => {
+            return request(app)
+              .patch("/api/comments/9")
+              .send({})
+              .expect(200)
+              .then(({ body: { comment } }) => {
+                expect(comment.votes).to.equal(0);
+              });
+          });
+          it("status 400: incorrect data type on key value", () => {
+            return request(app)
+              .patch("/api/comments/9")
+              .send({ inc_votes: "seven" })
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Sorry, Bad Request!");
+              });
+          });
+          it("status 400: incorrect data type for comment_id", () => {
+            return request(app)
+              .patch("/api/comments/nine")
+              .send({ inc_votes: 5 })
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Sorry, Bad Request!");
+              });
+          });
+          it("status 404: correct data type but non-existent comment_id, returns not found", () => {
+            return request(app)
+              .patch("/api/comments/1000")
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Sorry, not found");
+              });
+          });
+        });
+        describe("DELETE", () => {
+          it("status 204: deletes comment by comment_id and returns no content", () => {
+            return request(app)
+              .delete("/api/comments/1")
+              .expect(204);
+          });
+          it("status 404: deletes comment by comment_id and returns no content", () => {
+            return request(app)
+              .delete("/api/comments/")
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Sorry, path not found!");
+              });
+          });
+        });
+      });
+    });
   });
   describe("/*", () => {
     it("status 404: client provides invalid path", () => {
@@ -467,7 +567,7 @@ describe("nc_news_api", () => {
         .get("/api/invalid")
         .expect(404)
         .then(({ body: { msg } }) => {
-          expect(msg).to.equal("Sorry, invalid path!");
+          expect(msg).to.equal("Sorry, path not found!");
         });
     });
   });

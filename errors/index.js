@@ -1,5 +1,5 @@
 exports.handles404s = (req, res, next) => {
-  res.status(404).send({ msg: "Sorry, invalid path!" });
+  res.status(404).send({ msg: "Sorry, path not found!" });
 };
 
 exports.handles400s = (err, req, res, next) => {

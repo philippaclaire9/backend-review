@@ -72,6 +72,7 @@ exports.fetchAllArticles = (
   topic
 ) => {
   return connection
+
     .select("articles.*")
     .count("comment_id AS comment_count")
     .from("articles")
@@ -81,5 +82,8 @@ exports.fetchAllArticles = (
       if (author) query.where("articles.author", "=", author);
       if (topic) query.where("topic", "=", topic);
     })
-    .orderBy(sort_by, order);
+    .orderBy(sort_by, order)
+    .then(articles => {
+      return articles;
+    });
 };
