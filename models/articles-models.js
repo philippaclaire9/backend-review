@@ -64,3 +64,22 @@ exports.fetchComments = (
     .where({ article_id })
     .orderBy(sort_by, order);
 };
+
+exports.fetchAllArticles = (
+  sort_by = "created_at",
+  order = "desc",
+  author,
+  topic
+) => {
+  return connection
+    .select("articles.*")
+    .count("comment_id AS comment_count")
+    .from("articles")
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .groupBy("articles.article_id")
+    .modify(query => {
+      if (author) query.where("articles.author", "=", author);
+      if (topic) query.where("topic", "=", topic);
+    })
+    .orderBy(sort_by, order);
+};

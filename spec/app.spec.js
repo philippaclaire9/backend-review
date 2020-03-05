@@ -48,12 +48,128 @@ describe("nc_news_api", () => {
       });
     });
     describe("/articles", () => {
-      describe("GET", () => {
+      describe.only("GET", () => {
         it("status 200: responds with array of articles objects", () => {
           return request(app)
             .get("/api/articles")
             .expect(200)
-            .then(({ body: { articles } }) => {});
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.an("array");
+              expect(articles[0]).to.contain.keys(
+                "author",
+                "title",
+                "article_id",
+                "topic",
+                "created_at",
+                "votes",
+                "comment_count"
+              );
+              expect(articles.length).to.equal(12);
+            });
+        });
+        it("status 200: responds with array of articles objects, sorted by any valid column, default to created_at descending", () => {
+          return request(app)
+            .get("/api/articles?sort_by=title")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.an("array");
+              expect(articles[0]).to.contain.keys(
+                "author",
+                "title",
+                "article_id",
+                "topic",
+                "created_at",
+                "votes",
+                "comment_count"
+              );
+              expect(articles).to.be.descendingBy("title");
+              expect(articles.length).to.equal(12);
+            });
+        });
+        it("status 200: responds with array of articles objects, sorted by any valid column and ordered, default to created_at descending", () => {
+          return request(app)
+            .get("/api/articles?sort_by=title&order=asc")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.an("array");
+              expect(articles[0]).to.contain.keys(
+                "author",
+                "title",
+                "article_id",
+                "topic",
+                "created_at",
+                "votes",
+                "comment_count"
+              );
+              expect(articles).to.be.sortedBy("title");
+              expect(articles.length).to.equal(12);
+            });
+        });
+        it("status 200: responds with an array of articles, filtered by author specified in query", () => {
+          return request(app)
+            .get("/api/articles?author=icellusedkars")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.an("array");
+              expect(articles[0]).to.contain.keys(
+                "author",
+                "title",
+                "article_id",
+                "topic",
+                "created_at",
+                "votes",
+                "comment_count"
+              );
+              expect(articles).to.be.descendingBy("created_at");
+              expect(articles).to.have.lengthOf(6);
+            });
+        });
+        it("status 200: responds with an array of articles, filtered by topic specified in query", () => {
+          return request(app)
+            .get("/api/articles?topic=mitch")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.an("array");
+              expect(articles[0]).to.contain.keys(
+                "author",
+                "title",
+                "article_id",
+                "topic",
+                "created_at",
+                "votes",
+                "comment_count"
+              );
+              expect(articles).to.be.descendingBy("created_at");
+              expect(articles).to.have.lengthOf(11);
+            });
+        });
+
+        it("status 200: responds with array of articles, accepting correct query, ignoring nonsense query", () => {
+          return request(app)
+            .get("/api/articles?sort_by=title&elephants=sparrow")
+            .expect(200)
+            .then(({ body: { articles } }) => {
+              expect(articles).to.be.an("array");
+              expect(articles[0]).to.contain.keys(
+                "author",
+                "title",
+                "article_id",
+                "topic",
+                "created_at",
+                "votes",
+                "comment_count"
+              );
+              expect(articles.length).to.equal(12);
+              expect(articles).to.be.descendingBy("title");
+            });
+        });
+        it("status 400: when column to be sorted by doesn't exist, returns bad request", () => {
+          return request(app)
+            .get("/api/articles?sort_by=kangaroos")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Sorry, Bad Request!");
+            });
         });
       });
       describe("/:article_id", () => {
