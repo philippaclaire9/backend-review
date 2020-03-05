@@ -1,31 +1,27 @@
 const express = require("express");
 
 const apiRouter = require("./routes/api");
+const {
+  handles404s,
+  handles400s,
+  handles422s,
+  handlesStatusErrors,
+  handles500s
+} = require("./errors");
 const app = express();
 
 app.use(express.json());
 
 app.use("/api", apiRouter);
 
-app.all("/*", (req, res, next) => {
-  res.status(404).send({ msg: "Sorry, invalid path!" });
-});
+app.all("/*", handles404s);
 
-app.use((err, req, res, next) => {
-  if (err.code === "22P02") {
-    res.status(400).send({ msg: "Sorry, Bad Request!" });
-  } else next(err);
-});
+app.use(handles400s);
 
-app.use((err, req, res, next) => {
-  if (err.status) {
-    res.status(err.status).send({ msg: err.msg });
-  } else next(err);
-});
+app.use(handles422s);
 
-app.use((err, req, res, next) => {
-  console.log(err);
-  res.status(500).send({ msg: "oh dear, internal server error" });
-});
+app.use(handlesStatusErrors);
+
+app.use(handles500s);
 
 module.exports = app;

@@ -27,8 +27,9 @@ exports.updateArticle = (article_id, voteChange = 0) => {
     .increment("votes", voteChange)
     .returning("*")
     .then(([article]) => {
-      //console.log(article);
-      return article;
+      if (!article)
+        return Promise.reject({ status: 404, msg: "Sorry, not found!" });
+      else return article;
     });
 };
 
@@ -50,4 +51,16 @@ exports.createComment = (article_id, newComment) => {
     .then(([comment]) => {
       return comment;
     });
+};
+
+exports.fetchComments = (
+  article_id,
+  sort_by = "created_at",
+  order = "desc"
+) => {
+  return connection
+    .select("*")
+    .from("comments")
+    .where({ article_id })
+    .orderBy(sort_by, order);
 };
