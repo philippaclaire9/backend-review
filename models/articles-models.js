@@ -1,4 +1,6 @@
 const connection = require("../db/connection");
+const { checkAuthor } = require("../models/users-model");
+const { checkTopic } = require("../models/topics-model");
 
 exports.selectArticleById = article_id => {
   return connection
@@ -65,54 +67,42 @@ exports.fetchComments = (
     });
 };
 
-function checkTopic(topic) {
-  return connection
-    .select("*")
-    .from("topics")
-    .where("topics.slug", topic)
-    .then(topic => {
-      if (!topic)
-        return Promise.reject({ status: 404, msg: "Sorry, not found" });
-    });
-}
-
-function checkAuthor(author) {
-  return connection
-    .select("*")
-    .from("users")
-    .where("users.username", author)
-    .then(author => {
-      if (!author) return Promise.reject({ status: 404, msg: "Sorry, not" });
-    });
-}
-
 exports.fetchAllArticles = (
   sort_by = "created_at",
   order = "desc",
   author,
   topic
 ) => {
-  return connection
+  if (order !== "desc" && order !== "asc")
+    return Promise.reject({ status: 400, msg: "Sorry, Bad Request!" });
+  else {
+    return connection
 
-    .select("articles.*")
-    .count("comment_id AS comment_count")
-    .from("articles")
-    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
-    .groupBy("articles.article_id")
-    .modify(query => {
-      if (author) query.where("articles.author", "=", author);
-      if (topic) query.where("topic", "=", topic);
-      //if (order !== "desc" || order !== "asc") query.orderBy(sort_by, "desc");
-      //return Promise.reject({ status: 400, msg: "Sorry, Bad Request!" });
-    })
-    .orderBy(sort_by, order)
-    .then(articles => {
-      if (!articles.length) {
-        return Promise.all([[], checkTopic(topic), checkAuthor(author)]).then(
-          ([articles]) => {
-            return articles;
+      .select("articles.*")
+      .count("comment_id AS comment_count")
+      .from("articles")
+      .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+      .groupBy("articles.article_id")
+      .modify(query => {
+        if (author) query.where("articles.author", "=", author);
+        if (topic) query.where("topic", "=", topic);
+      })
+      .orderBy(sort_by, order)
+      .then(articles => {
+        if (!articles.length) {
+          const promiseArray = [articles];
+          if (topic) {
+            promiseArray.push(checkTopic(topic));
           }
-        );
-      } else return articles;
-    });
+
+          if (author) {
+            promiseArray.push(checkAuthor(author));
+          }
+
+          return Promise.all(promiseArray).then(([emptyArticles]) => {
+            return emptyArticles;
+          });
+        } else return articles;
+      });
+  }
 };

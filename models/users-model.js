@@ -16,3 +16,14 @@ exports.fetchUserById = username => {
 exports.fetchAllUsers = () => {
   return connection.select("*").from("users");
 };
+
+exports.checkAuthor = author => {
+  return connection
+    .select("*")
+    .from("users")
+    .where("users.username", author)
+    .then(author => {
+      if (!author)
+        return Promise.reject({ status: 404, msg: "Sorry, not found" });
+    });
+};

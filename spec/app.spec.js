@@ -276,13 +276,20 @@ describe("nc_news_api", () => {
               expect(msg).to.equal("Sorry, Bad Request!");
             });
         });
-
+        it("status 200: when author exists but has not written any articles, returns an empty array", () => {
+          return request(app)
+            .get("/api/articles?author=lurker")
+            .expect(({ body: { articles } }) => {
+              expect(articles).to.be.an("array");
+              expect(articles).to.have.lengthOf(0);
+            });
+        });
         it("status 404: when topic does not exist, returns not found", () => {
           return request(app)
             .get("/api/articles?topic=sugar")
             .expect(404)
             .then(({ body: { msg } }) => {
-              expect(msg).to.equal("Sorry, path not found");
+              expect(msg).to.equal("Sorry, not found");
             });
         });
       });
