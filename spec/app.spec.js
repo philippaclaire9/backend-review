@@ -180,6 +180,14 @@ describe("nc_news_api", () => {
               expect(articles).to.have.lengthOf(0);
             });
         });
+        it.only("status 400: responds with bad request given a non-existent order", () => {
+          return request(app)
+            .get("/api/articles?sort_by=title&order=sparrow")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Sorry, Bad Request!");
+            });
+        });
         it("status 404: when topic does not exist, returns not found", () => {
           return request(app)
             .get("/api/articles?topic=sugar")
@@ -464,21 +472,22 @@ describe("nc_news_api", () => {
                   expect(msg).to.equal("Sorry, unprocessable entity!");
                 });
             });
-            // it.only("status 400: incorrect data type for article_id", () => {
-            //   return request(app)
-            //     .patch("/api/articles/harry/comments")
-            //     .send({ username: "butter_bridge", body: "text here" })
-            //     .expect(400)
-            //     .then(({ body: { msg } }) => {
-            //       expect(msg).to.equal("Sorry, Bad Request!");
-            //     });
-            // });
+            it("status 404: incorrect data type for article_id", () => {
+              return request(app)
+                .patch("/api/articles/harry/comments")
+                .send({ username: "butter_bridge", body: "text here" })
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                  expect(msg).to.equal("Sorry, path not found!");
+                });
+            });
           });
         });
       });
     });
     describe("/comments", () => {
       describe("/:comments_id", () => {
+        //describe("INVALID METHODS")
         describe("PATCH", () => {
           it("status 200: responds with a comment with updated vote property", () => {
             return request(app)

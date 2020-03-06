@@ -81,9 +81,12 @@ exports.fetchAllArticles = (
     .modify(query => {
       if (author) query.where("articles.author", "=", author);
       if (topic) query.where("topic", "=", topic);
+      //if (order !== "desc" || order !== "asc")
+      //return Promise.reject({ status: 400, msg: "Sorry, Bad Request!" });
     })
     .orderBy(sort_by, order)
     .then(articles => {
+      console.log(articles);
       return articles;
     });
 };
