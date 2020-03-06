@@ -1,10 +1,5 @@
 const connection = require("../db/connection");
 
-// SELECT COUNT(comments.article_id) AS comment_count, comments.article_id  FROM comments
-//  LEFT JOIN articles
-// ON articles.article_id=comments.article_id
-// GROUP BY comments.article_id;
-
 exports.selectArticleById = article_id => {
   return connection
     .select("articles.*")
@@ -62,8 +57,34 @@ exports.fetchComments = (
     .select("*")
     .from("comments")
     .where({ article_id })
-    .orderBy(sort_by, order);
+    .orderBy(sort_by, order)
+    .then(comments => {
+      if (!comments.length)
+        return Promise.reject({ status: 404, msg: "Sorry, not found!" });
+      else return comments;
+    });
 };
+
+function checkTopic(topic) {
+  return connection
+    .select("*")
+    .from("topics")
+    .where("topics.slug", topic)
+    .then(topic => {
+      if (!topic)
+        return Promise.reject({ status: 404, msg: "Sorry, not found" });
+    });
+}
+
+function checkAuthor(author) {
+  return connection
+    .select("*")
+    .from("users")
+    .where("users.username", author)
+    .then(author => {
+      if (!author) return Promise.reject({ status: 404, msg: "Sorry, not" });
+    });
+}
 
 exports.fetchAllArticles = (
   sort_by = "created_at",
@@ -81,12 +102,17 @@ exports.fetchAllArticles = (
     .modify(query => {
       if (author) query.where("articles.author", "=", author);
       if (topic) query.where("topic", "=", topic);
-      //if (order !== "desc" || order !== "asc")
+      //if (order !== "desc" || order !== "asc") query.orderBy(sort_by, "desc");
       //return Promise.reject({ status: 400, msg: "Sorry, Bad Request!" });
     })
     .orderBy(sort_by, order)
     .then(articles => {
-      console.log(articles);
-      return articles;
+      if (!articles.length) {
+        return Promise.all([[], checkTopic(topic), checkAuthor(author)]).then(
+          ([articles]) => {
+            return articles;
+          }
+        );
+      } else return articles;
     });
 };

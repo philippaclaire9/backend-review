@@ -6,7 +6,8 @@ const {
   handles400s,
   handles422s,
   handlesStatusErrors,
-  handles500s
+  handles500s,
+  handles405s
 } = require("./errors");
 const app = express();
 

@@ -8,7 +8,8 @@ exports.up = function(knex) {
     tableBuilder
       .integer("article_id")
       .references("articles.article_id")
-      .notNullable();
+      .notNullable()
+      .onDelete("CASCADE");
     tableBuilder.integer("votes").defaultTo(0);
     tableBuilder
       .timestamp("created_at")

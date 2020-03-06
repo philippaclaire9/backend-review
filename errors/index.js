@@ -2,6 +2,10 @@ exports.handles404s = (req, res, next) => {
   res.status(404).send({ msg: "Sorry, path not found!" });
 };
 
+exports.handles405s = (req, res, next) => {
+  res.status(405).send({ msg: "Sorry, method not allowed!" });
+};
+
 exports.handles400s = (err, req, res, next) => {
   if (err.code === "22P02" || err.code === "23502" || err.code === "42703") {
     res.status(400).send({ msg: "Sorry, Bad Request!" });

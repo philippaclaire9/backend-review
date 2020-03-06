@@ -17,5 +17,9 @@ exports.removeComment = comment_id => {
   return connection
     .del()
     .from("comments")
-    .where("comment_id", "=", comment_id);
+    .where("comment_id", "=", comment_id)
+    .then(comment => {
+      if (comment === 0)
+        return Promise.reject({ status: 404, msg: "Sorry, not found!" });
+    });
 };

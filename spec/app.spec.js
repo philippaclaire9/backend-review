@@ -12,7 +12,35 @@ describe("nc_news_api", () => {
     return connection.seed.run();
   });
   describe("/api", () => {
+    describe("INVALID METHODS", () => {
+      it("status 405: invalid method", () => {
+        const invalidMethods = ["delete", "patch", "post", "put"];
+        const promiseArray = invalidMethods.map(method => {
+          return request(app)
+            [method]("/api")
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Sorry, method not allowed!");
+            });
+        });
+        return Promise.all(promiseArray);
+      });
+    });
     describe("/topics", () => {
+      describe("INVALID METHODS", () => {
+        it("status 405: invalid method", () => {
+          const invalidMethods = ["delete", "patch", "post", "put"];
+          const promiseArray = invalidMethods.map(method => {
+            return request(app)
+              [method]("/api/topics")
+              .expect(405)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Sorry, method not allowed!");
+              });
+          });
+          return Promise.all(promiseArray);
+        });
+      });
       describe("GET", () => {
         it("status 200: will retrieve all topics", () => {
           return request(app)
@@ -27,27 +55,87 @@ describe("nc_news_api", () => {
       });
     });
     describe("/users", () => {
+      describe("INVALID METHODS", () => {
+        it("status 405: invalid method", () => {
+          const invalidMethods = ["delete", "patch", "post", "put"];
+          const promiseArray = invalidMethods.map(method => {
+            return request(app)
+              [method]("/api/users/")
+              .expect(405)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Sorry, method not allowed!");
+              });
+          });
+          return Promise.all(promiseArray);
+        });
+      });
       describe("GET", () => {
-        it("status 200: will retrieve user by id", () => {
+        it("status 200: returns an array of objects of all users", () => {
           return request(app)
-            .get("/api/users/lurker")
+            .get("/api/users")
             .expect(200)
-            .then(({ body: { user } }) => {
-              expect(user).to.contain.keys("username", "avatar_url", "name");
-              expect(user).to.be.an("object");
+            .then(({ body: { users } }) => {
+              expect(users).to.be.an("array");
+              expect(users[0]).to.contain.keys(
+                "username",
+                "avatar_url",
+                "name"
+              );
+              expect(users).to.have.lengthOf(4);
             });
         });
-        it("status 404: resource does not exist", () => {
-          return request(app)
-            .get("/api/users/sesame")
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).to.equal("user not found");
+      });
+      describe("/:user_id", () => {
+        describe("INVALID METHODS", () => {
+          it("status 405: invalid method", () => {
+            const invalidMethods = ["delete", "patch", "post", "put"];
+            const promiseArray = invalidMethods.map(method => {
+              return request(app)
+                [method]("/api/users/:user_id")
+                .expect(405)
+                .then(({ body: { msg } }) => {
+                  expect(msg).to.equal("Sorry, method not allowed!");
+                });
             });
+            return Promise.all(promiseArray);
+          });
+        });
+        describe("GET", () => {
+          it("status 200: will retrieve user by id", () => {
+            return request(app)
+              .get("/api/users/lurker")
+              .expect(200)
+              .then(({ body: { user } }) => {
+                expect(user).to.contain.keys("username", "avatar_url", "name");
+                expect(user).to.be.an("object");
+              });
+          });
+          it("status 404: resource does not exist", () => {
+            return request(app)
+              .get("/api/users/sesame")
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("user not found");
+              });
+          });
         });
       });
     });
     describe("/articles", () => {
+      describe("INVALID METHODS", () => {
+        it("status 405: invalid method", () => {
+          const invalidMethods = ["delete", "patch", "post", "put"];
+          const promiseArray = invalidMethods.map(method => {
+            return request(app)
+              [method]("/api/articles")
+              .expect(405)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Sorry, method not allowed!");
+              });
+          });
+          return Promise.all(promiseArray);
+        });
+      });
       describe("GET", () => {
         it("status 200: responds with array of articles objects", () => {
           return request(app)
@@ -180,14 +268,15 @@ describe("nc_news_api", () => {
               expect(articles).to.have.lengthOf(0);
             });
         });
-        it.only("status 400: responds with bad request given a non-existent order", () => {
+        it("status 400: when order is not asc or desc, returns bad request", () => {
           return request(app)
-            .get("/api/articles?sort_by=title&order=sparrow")
+            .get("/api/articles?order=sparrow")
             .expect(400)
             .then(({ body: { msg } }) => {
               expect(msg).to.equal("Sorry, Bad Request!");
             });
         });
+
         it("status 404: when topic does not exist, returns not found", () => {
           return request(app)
             .get("/api/articles?topic=sugar")
@@ -198,6 +287,20 @@ describe("nc_news_api", () => {
         });
       });
       describe("/:article_id", () => {
+        describe("INVALID METHODS", () => {
+          it("status 405: invalid method", () => {
+            const invalidMethods = ["delete", "post", "put"];
+            const promiseArray = invalidMethods.map(method => {
+              return request(app)
+                [method]("/api/articles/:article_id")
+                .expect(405)
+                .then(({ body: { msg } }) => {
+                  expect(msg).to.equal("Sorry, method not allowed!");
+                });
+            });
+            return Promise.all(promiseArray);
+          });
+        });
         describe("GET", () => {
           it("status 200: will retrieve article by id", () => {
             return request(app)
@@ -329,6 +432,20 @@ describe("nc_news_api", () => {
         });
 
         describe("/comments", () => {
+          describe("INVALID METHODS", () => {
+            it("status 405: invalid method", () => {
+              const invalidMethods = ["delete", "put", "patch"];
+              const promiseArray = invalidMethods.map(method => {
+                return request(app)
+                  [method]("/api/articles/:article_id/comments")
+                  .expect(405)
+                  .then(({ body: { msg } }) => {
+                    expect(msg).to.equal("Sorry, method not allowed!");
+                  });
+              });
+              return Promise.all(promiseArray);
+            });
+          });
           describe("GET", () => {
             it("status 200: responds with array of comments for given article_id", () => {
               return request(app)
@@ -425,6 +542,14 @@ describe("nc_news_api", () => {
                   expect(msg).to.equal("Sorry, Bad Request!");
                 });
             });
+            it("status 404: invalid article_id", () => {
+              return request(app)
+                .get("/api/articles/1000/comments")
+                .expect(404)
+                .then(({ body: { msg } }) => {
+                  expect(msg).to.equal("Sorry, not found!");
+                });
+            });
           });
           describe("POST", () => {
             it("status 201: new comment is created and returned", () => {
@@ -472,13 +597,13 @@ describe("nc_news_api", () => {
                   expect(msg).to.equal("Sorry, unprocessable entity!");
                 });
             });
-            it("status 404: incorrect data type for article_id", () => {
+            it("status 400: incorrect data type for article_id", () => {
               return request(app)
-                .patch("/api/articles/harry/comments")
+                .post("/api/articles/harry/comments")
                 .send({ username: "butter_bridge", body: "text here" })
-                .expect(404)
+                .expect(400)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, path not found!");
+                  expect(msg).to.equal("Sorry, Bad Request!");
                 });
             });
           });
@@ -486,8 +611,21 @@ describe("nc_news_api", () => {
       });
     });
     describe("/comments", () => {
-      describe("/:comments_id", () => {
-        //describe("INVALID METHODS")
+      describe("/:comment_id", () => {
+        describe("INVALID METHODS", () => {
+          it("status 405: invalid method", () => {
+            const invalidMethods = ["post", "put", "get"];
+            const promiseArray = invalidMethods.map(method => {
+              return request(app)
+                [method]("/api/comments/:comment_id")
+                .expect(405)
+                .then(({ body: { msg } }) => {
+                  expect(msg).to.equal("Sorry, method not allowed!");
+                });
+            });
+            return Promise.all(promiseArray);
+          });
+        });
         describe("PATCH", () => {
           it("status 200: responds with a comment with updated vote property", () => {
             return request(app)
@@ -558,12 +696,31 @@ describe("nc_news_api", () => {
               .delete("/api/comments/1")
               .expect(204);
           });
-          it("status 404: deletes comment by comment_id and returns no content", () => {
+          it("status 404: returns not found when trying to delete a comment that has already been deleted", () => {
             return request(app)
-              .delete("/api/comments/")
-              .expect(404)
+              .delete("/api/comments/1")
+              .then(() => {
+                return request(app)
+                  .delete("/api/comments/1")
+                  .expect(404)
+                  .then(({ body: { msg } }) => {
+                    expect(msg).to.equal("Sorry, not found!");
+                  });
+              });
+          });
+          it("status 404: returns not found when comment_id is valid but non-existent", () => {
+            return request(app)
+              .delete("/api/comments/1000")
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, path not found!");
+                expect(msg).to.equal("Sorry, not found!");
+              });
+          });
+          it("status 400: when given invalid comment_id, returns bad request", () => {
+            return request(app)
+              .delete("/api/comments/lemon")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).to.equal("Sorry, Bad Request!");
               });
           });
         });
