@@ -35,6 +35,22 @@ describe("nc_news_api", () => {
             expect(endpoints).to.be.an("object");
           });
       });
+      it("status 404: returns not found when path incorrect", () => {
+        return request(app)
+          .get("/apii")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Sorry, path not found!");
+          });
+      });
+      it("status 405: returns invalid method", () => {
+        return request(app)
+          .post("/api")
+          .expect(405)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Sorry, method not allowed!");
+          });
+      });
     });
     describe("/topics", () => {
       describe("INVALID METHODS", () => {
