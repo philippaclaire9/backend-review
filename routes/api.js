@@ -3,9 +3,13 @@ const topicsRouter = require("./topics");
 const usersRouter = require("./users");
 const articlesRouter = require("./articles");
 const commentsRouter = require("./comments");
+const { getEndpoints } = require("../controllers/endpoints-controller");
 const { handles405s } = require("../errors");
 
-apiRouter.route("/").all(handles405s);
+apiRouter
+  .route("/")
+  .get(getEndpoints)
+  .all(handles405s);
 
 apiRouter.use("/topics", topicsRouter);
 

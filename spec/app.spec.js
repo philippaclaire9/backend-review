@@ -26,6 +26,16 @@ describe("nc_news_api", () => {
         return Promise.all(promiseArray);
       });
     });
+    describe("GET", () => {
+      it("status 200: returns a json object of all possible endpoints", () => {
+        return request(app)
+          .get("/api")
+          .expect(200)
+          .then(({ body: { endpoints } }) => {
+            expect(endpoints).to.be.an("object");
+          });
+      });
+    });
     describe("/topics", () => {
       describe("INVALID METHODS", () => {
         it("status 405: invalid method", () => {
