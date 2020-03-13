@@ -1,595 +1,595 @@
-process.env.NODE_ENV = "test";
+process.env.NODE_ENV = 'test';
 
-const request = require("supertest");
-const { expect } = require("chai");
-const app = require("../app");
-const connection = require("../db/connection");
-const chai = require("chai");
-chai.use(require("chai-sorted"));
+const request = require('supertest');
+const { expect } = require('chai');
+const app = require('../app');
+const connection = require('../db/connection');
+const chai = require('chai');
+chai.use(require('chai-sorted'));
 
-describe("nc_news_api", () => {
+describe('nc_news_api', () => {
   beforeEach(function() {
     return connection.seed.run();
   });
-  describe("/api", () => {
-    describe("INVALID METHODS", () => {
-      it("status 405: invalid method", () => {
-        const invalidMethods = ["delete", "patch", "post", "put"];
+  describe('/api', () => {
+    describe('INVALID METHODS', () => {
+      it('status 405: invalid method', () => {
+        const invalidMethods = ['delete', 'patch', 'post', 'put'];
         const promiseArray = invalidMethods.map(method => {
           return request(app)
-            [method]("/api")
+            [method]('/api')
             .expect(405)
             .then(({ body: { msg } }) => {
-              expect(msg).to.equal("Sorry, method not allowed!");
+              expect(msg).to.equal('Sorry, method not allowed!');
             });
         });
         return Promise.all(promiseArray);
       });
     });
-    describe("GET", () => {
-      it("status 200: returns a json object of all possible endpoints", () => {
+    describe('GET', () => {
+      it('status 200: returns a json object of all possible endpoints', () => {
         return request(app)
-          .get("/api")
+          .get('/api')
           .expect(200)
           .then(({ body: { endpoints } }) => {
-            expect(endpoints).to.be.an("object");
+            expect(endpoints).to.be.an('object');
           });
       });
-      it("status 404: returns not found when path incorrect", () => {
+      it('status 404: returns not found when path incorrect', () => {
         return request(app)
-          .get("/apii")
+          .get('/apii')
           .expect(404)
           .then(({ body: { msg } }) => {
-            expect(msg).to.equal("Sorry, path not found!");
+            expect(msg).to.equal('Sorry, path not found!');
           });
       });
-      it("status 405: returns invalid method", () => {
+      it('status 405: returns invalid method', () => {
         return request(app)
-          .post("/api")
+          .post('/api')
           .expect(405)
           .then(({ body: { msg } }) => {
-            expect(msg).to.equal("Sorry, method not allowed!");
+            expect(msg).to.equal('Sorry, method not allowed!');
           });
       });
     });
-    describe("/topics", () => {
-      describe("INVALID METHODS", () => {
-        it("status 405: invalid method", () => {
-          const invalidMethods = ["delete", "patch", "post", "put"];
+    describe('/topics', () => {
+      describe('INVALID METHODS', () => {
+        it('status 405: invalid method', () => {
+          const invalidMethods = ['delete', 'patch', 'post', 'put'];
           const promiseArray = invalidMethods.map(method => {
             return request(app)
-              [method]("/api/topics")
+              [method]('/api/topics')
               .expect(405)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, method not allowed!");
+                expect(msg).to.equal('Sorry, method not allowed!');
               });
           });
           return Promise.all(promiseArray);
         });
       });
-      describe("GET", () => {
-        it("status 200: will retrieve all topics", () => {
+      describe('GET', () => {
+        it('status 200: will retrieve all topics', () => {
           return request(app)
-            .get("/api/topics")
+            .get('/api/topics')
             .expect(200)
             .then(({ body: { topics } }) => {
-              expect(topics).to.be.an("array");
+              expect(topics).to.be.an('array');
               expect(topics.length).to.equal(3);
-              expect(topics[0]).to.contain.keys("slug", "description");
+              expect(topics[0]).to.contain.keys('slug', 'description');
             });
         });
       });
     });
-    describe("/users", () => {
-      describe("INVALID METHODS", () => {
-        it("status 405: invalid method", () => {
-          const invalidMethods = ["delete", "patch", "post", "put"];
+    describe('/users', () => {
+      describe('INVALID METHODS', () => {
+        it('status 405: invalid method', () => {
+          const invalidMethods = ['delete', 'patch', 'post', 'put'];
           const promiseArray = invalidMethods.map(method => {
             return request(app)
-              [method]("/api/users/")
+              [method]('/api/users/')
               .expect(405)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, method not allowed!");
+                expect(msg).to.equal('Sorry, method not allowed!');
               });
           });
           return Promise.all(promiseArray);
         });
       });
-      describe("GET", () => {
-        it("status 200: returns an array of objects of all users", () => {
+      describe('GET', () => {
+        it('status 200: returns an array of objects of all users', () => {
           return request(app)
-            .get("/api/users")
+            .get('/api/users')
             .expect(200)
             .then(({ body: { users } }) => {
-              expect(users).to.be.an("array");
+              expect(users).to.be.an('array');
               expect(users[0]).to.contain.keys(
-                "username",
-                "avatar_url",
-                "name"
+                'username',
+                'avatar_url',
+                'name'
               );
               expect(users).to.have.lengthOf(4);
             });
         });
       });
-      describe("/:user_id", () => {
-        describe("INVALID METHODS", () => {
-          it("status 405: invalid method", () => {
-            const invalidMethods = ["delete", "patch", "post", "put"];
+      describe('/:user_id', () => {
+        describe('INVALID METHODS', () => {
+          it('status 405: invalid method', () => {
+            const invalidMethods = ['delete', 'patch', 'post', 'put'];
             const promiseArray = invalidMethods.map(method => {
               return request(app)
-                [method]("/api/users/:user_id")
+                [method]('/api/users/:user_id')
                 .expect(405)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, method not allowed!");
+                  expect(msg).to.equal('Sorry, method not allowed!');
                 });
             });
             return Promise.all(promiseArray);
           });
         });
-        describe("GET", () => {
-          it("status 200: will retrieve user by id", () => {
+        describe('GET', () => {
+          it('status 200: will retrieve user by id', () => {
             return request(app)
-              .get("/api/users/lurker")
+              .get('/api/users/lurker')
               .expect(200)
               .then(({ body: { user } }) => {
-                expect(user).to.contain.keys("username", "avatar_url", "name");
-                expect(user).to.be.an("object");
+                expect(user).to.contain.keys('username', 'avatar_url', 'name');
+                expect(user).to.be.an('object');
               });
           });
-          it("status 404: resource does not exist", () => {
+          it('status 404: resource does not exist', () => {
             return request(app)
-              .get("/api/users/sesame")
+              .get('/api/users/sesame')
               .expect(404)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("user not found");
+                expect(msg).to.equal('user not found');
               });
           });
         });
       });
     });
-    describe("/articles", () => {
-      describe("INVALID METHODS", () => {
-        it("status 405: invalid method", () => {
-          const invalidMethods = ["delete", "patch", "post", "put"];
+    describe('/articles', () => {
+      describe('INVALID METHODS', () => {
+        it('status 405: invalid method', () => {
+          const invalidMethods = ['delete', 'patch', 'post', 'put'];
           const promiseArray = invalidMethods.map(method => {
             return request(app)
-              [method]("/api/articles")
+              [method]('/api/articles')
               .expect(405)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, method not allowed!");
+                expect(msg).to.equal('Sorry, method not allowed!');
               });
           });
           return Promise.all(promiseArray);
         });
       });
-      describe("GET", () => {
-        it("status 200: responds with array of articles objects", () => {
+      describe('GET', () => {
+        it('status 200: responds with array of articles objects', () => {
           return request(app)
-            .get("/api/articles")
+            .get('/api/articles')
             .expect(200)
             .then(({ body: { articles } }) => {
-              expect(articles).to.be.an("array");
+              expect(articles).to.be.an('array');
               expect(articles[0]).to.contain.keys(
-                "author",
-                "title",
-                "article_id",
-                "topic",
-                "created_at",
-                "votes",
-                "comment_count"
+                'author',
+                'title',
+                'article_id',
+                'topic',
+                'created_at',
+                'votes',
+                'comment_count'
               );
               expect(articles.length).to.equal(12);
             });
         });
-        it("status 200: responds with array of articles objects, sorted by any valid column, default to created_at descending", () => {
+        it('status 200: responds with array of articles objects, sorted by any valid column, default to created_at descending', () => {
           return request(app)
-            .get("/api/articles?sort_by=title")
+            .get('/api/articles?sort_by=title')
             .expect(200)
             .then(({ body: { articles } }) => {
-              expect(articles).to.be.an("array");
+              expect(articles).to.be.an('array');
               expect(articles[0]).to.contain.keys(
-                "author",
-                "title",
-                "article_id",
-                "topic",
-                "created_at",
-                "votes",
-                "comment_count"
+                'author',
+                'title',
+                'article_id',
+                'topic',
+                'created_at',
+                'votes',
+                'comment_count'
               );
-              expect(articles).to.be.descendingBy("title");
+              expect(articles).to.be.descendingBy('title');
               expect(articles.length).to.equal(12);
             });
         });
-        it("status 200: responds with array of articles objects, sorted by any valid column and ordered, default to created_at descending", () => {
+        it('status 200: responds with array of articles objects, sorted by any valid column and ordered, default to created_at descending', () => {
           return request(app)
-            .get("/api/articles?sort_by=title&order=asc")
+            .get('/api/articles?sort_by=title&order=asc')
             .expect(200)
             .then(({ body: { articles } }) => {
-              expect(articles).to.be.an("array");
+              expect(articles).to.be.an('array');
               expect(articles[0]).to.contain.keys(
-                "author",
-                "title",
-                "article_id",
-                "topic",
-                "created_at",
-                "votes",
-                "comment_count"
+                'author',
+                'title',
+                'article_id',
+                'topic',
+                'created_at',
+                'votes',
+                'comment_count'
               );
-              expect(articles).to.be.sortedBy("title");
+              expect(articles).to.be.sortedBy('title');
               expect(articles.length).to.equal(12);
             });
         });
-        it("status 200: responds with an array of articles, filtered by author specified in query", () => {
+        it('status 200: responds with an array of articles, filtered by author specified in query', () => {
           return request(app)
-            .get("/api/articles?author=icellusedkars")
+            .get('/api/articles?author=icellusedkars')
             .expect(200)
             .then(({ body: { articles } }) => {
-              expect(articles).to.be.an("array");
+              expect(articles).to.be.an('array');
               expect(articles[0]).to.contain.keys(
-                "author",
-                "title",
-                "article_id",
-                "topic",
-                "created_at",
-                "votes",
-                "comment_count"
+                'author',
+                'title',
+                'article_id',
+                'topic',
+                'created_at',
+                'votes',
+                'comment_count'
               );
-              expect(articles).to.be.descendingBy("created_at");
+              expect(articles).to.be.descendingBy('created_at');
               expect(articles).to.have.lengthOf(6);
             });
         });
-        it("status 200: responds with an array of articles, filtered by topic specified in query", () => {
+        it('status 200: responds with an array of articles, filtered by topic specified in query', () => {
           return request(app)
-            .get("/api/articles?topic=mitch")
+            .get('/api/articles?topic=mitch')
             .expect(200)
             .then(({ body: { articles } }) => {
-              expect(articles).to.be.an("array");
+              expect(articles).to.be.an('array');
               expect(articles[0]).to.contain.keys(
-                "author",
-                "title",
-                "article_id",
-                "topic",
-                "created_at",
-                "votes",
-                "comment_count"
+                'author',
+                'title',
+                'article_id',
+                'topic',
+                'created_at',
+                'votes',
+                'comment_count'
               );
-              expect(articles).to.be.descendingBy("created_at");
+              expect(articles).to.be.descendingBy('created_at');
               expect(articles).to.have.lengthOf(11);
             });
         });
 
-        it("status 200: responds with array of articles, accepting correct query, ignoring nonsense query", () => {
+        it('status 200: responds with array of articles, accepting correct query, ignoring nonsense query', () => {
           return request(app)
-            .get("/api/articles?sort_by=title&elephants=sparrow")
+            .get('/api/articles?sort_by=title&elephants=sparrow')
             .expect(200)
             .then(({ body: { articles } }) => {
-              expect(articles).to.be.an("array");
+              expect(articles).to.be.an('array');
               expect(articles[0]).to.contain.keys(
-                "author",
-                "title",
-                "article_id",
-                "topic",
-                "created_at",
-                "votes",
-                "comment_count"
+                'author',
+                'title',
+                'article_id',
+                'topic',
+                'created_at',
+                'votes',
+                'comment_count'
               );
               expect(articles.length).to.equal(12);
-              expect(articles).to.be.descendingBy("title");
+              expect(articles).to.be.descendingBy('title');
             });
         });
         it("status 400: when column to be sorted by doesn't exist, returns bad request", () => {
           return request(app)
-            .get("/api/articles?sort_by=kangaroos")
+            .get('/api/articles?sort_by=kangaroos')
             .expect(400)
             .then(({ body: { msg } }) => {
-              expect(msg).to.equal("Sorry, Bad Request!");
+              expect(msg).to.equal('Sorry, Bad Request!');
             });
         });
-        it("status 200: responds with empty array when no articles exist with the topic queried", () => {
+        it('status 200: responds with empty array when no articles exist with the topic queried', () => {
           return request(app)
-            .get("/api/articles?topic=paper")
+            .get('/api/articles?topic=paper')
             .expect(200)
             .then(({ body: { articles } }) => {
-              expect(articles).to.be.an("array");
+              expect(articles).to.be.an('array');
               expect(articles).to.have.lengthOf(0);
             });
         });
-        it("status 400: when order is not asc or desc, returns bad request", () => {
+        it('status 400: when order is not asc or desc, returns bad request', () => {
           return request(app)
-            .get("/api/articles?order=sparrow")
+            .get('/api/articles?order=sparrow')
             .expect(400)
             .then(({ body: { msg } }) => {
-              expect(msg).to.equal("Sorry, Bad Request!");
+              expect(msg).to.equal('Sorry, Bad Request!');
             });
         });
-        it("status 200: when author exists but has not written any articles, returns an empty array", () => {
+        it('status 200: when author exists but has not written any articles, returns an empty array', () => {
           return request(app)
-            .get("/api/articles?author=lurker")
+            .get('/api/articles?author=lurker')
             .expect(({ body: { articles } }) => {
-              expect(articles).to.be.an("array");
+              expect(articles).to.be.an('array');
               expect(articles).to.have.lengthOf(0);
             });
         });
-        it("status 404: when topic does not exist, returns not found", () => {
+        it('status 404: when topic does not exist, returns not found', () => {
           return request(app)
-            .get("/api/articles?topic=sugar")
+            .get('/api/articles?topic=sugar')
             .expect(404)
             .then(({ body: { msg } }) => {
-              expect(msg).to.equal("Sorry, not found");
+              expect(msg).to.equal('Sorry, not found');
             });
         });
       });
-      describe("/:article_id", () => {
-        describe("INVALID METHODS", () => {
-          it("status 405: invalid method", () => {
-            const invalidMethods = ["delete", "post", "put"];
+      describe('/:article_id', () => {
+        describe('INVALID METHODS', () => {
+          it('status 405: invalid method', () => {
+            const invalidMethods = ['delete', 'post', 'put'];
             const promiseArray = invalidMethods.map(method => {
               return request(app)
-                [method]("/api/articles/:article_id")
+                [method]('/api/articles/:article_id')
                 .expect(405)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, method not allowed!");
+                  expect(msg).to.equal('Sorry, method not allowed!');
                 });
             });
             return Promise.all(promiseArray);
           });
         });
-        describe("GET", () => {
-          it("status 200: will retrieve article by id", () => {
+        describe('GET', () => {
+          it('status 200: will retrieve article by id', () => {
             return request(app)
-              .get("/api/articles/9")
+              .get('/api/articles/9')
               .expect(200)
               .then(({ body: { article } }) => {
                 expect(article).to.contain.keys(
-                  "article_id",
-                  "title",
-                  "body",
-                  "votes",
-                  "topic",
-                  "author",
-                  "created_at",
-                  "comment_count"
+                  'article_id',
+                  'title',
+                  'body',
+                  'votes',
+                  'topic',
+                  'author',
+                  'created_at',
+                  'comment_count'
                 );
-                expect(article).to.be.an("object");
-                expect(article.comment_count).to.equal("2");
+                expect(article).to.be.an('object');
+                expect(article.comment_count).to.equal('2');
               });
           });
-          it("status 404: resource does not exist", () => {
+          it('status 404: resource does not exist', () => {
             return request(app)
-              .get("/api/articles/99")
+              .get('/api/articles/99')
               .expect(404)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("article not found");
+                expect(msg).to.equal('article not found');
               });
           });
-          it("status 400: client entered an invalid article_id", () => {
+          it('status 400: client entered an invalid article_id', () => {
             return request(app)
-              .get("/api/articles/fishfingers")
+              .get('/api/articles/fishfingers')
               .expect(400)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, Bad Request!");
+                expect(msg).to.equal('Sorry, Bad Request!');
               });
           });
         });
-        describe("PATCH", () => {
-          it("status 200: will return a treasure with increased votes property", () => {
+        describe('PATCH', () => {
+          it('status 200: will return a treasure with increased votes property', () => {
             return request(app)
-              .patch("/api/articles/3")
+              .patch('/api/articles/3')
               .send({ inc_votes: 5 })
               .expect(200)
               .then(({ body: { article } }) => {
                 expect(article).to.contain.keys(
-                  "article_id",
-                  "title",
-                  "body",
-                  "votes",
-                  "topic",
-                  "author",
-                  "created_at"
+                  'article_id',
+                  'title',
+                  'body',
+                  'votes',
+                  'topic',
+                  'author',
+                  'created_at'
                 );
                 expect(article.votes).to.equal(5);
               });
           });
-          it("status 200: will return a treasure with decreased votes property", () => {
+          it('status 200: will return a treasure with decreased votes property', () => {
             return request(app)
-              .patch("/api/articles/3")
+              .patch('/api/articles/3')
               .send({ inc_votes: -5 })
               .expect(200)
               .then(({ body: { article } }) => {
                 expect(article).to.contain.keys(
-                  "article_id",
-                  "title",
-                  "body",
-                  "votes",
-                  "topic",
-                  "author",
-                  "created_at"
+                  'article_id',
+                  'title',
+                  'body',
+                  'votes',
+                  'topic',
+                  'author',
+                  'created_at'
                 );
                 expect(article.votes).to.equal(-5);
               });
           });
-          it("status 200: incorrect key, votes not changed", () => {
+          it('status 200: incorrect key, votes not changed', () => {
             return request(app)
-              .patch("/api/articles/1")
+              .patch('/api/articles/1')
               .send({ increase_votes: 5 })
               .expect(200)
               .then(({ body: { article } }) => {
                 expect(article.votes).to.equal(100);
               });
           });
-          it("status 200: missing key, votes not changed", () => {
+          it('status 200: missing key, votes not changed', () => {
             return request(app)
-              .patch("/api/articles/3")
+              .patch('/api/articles/3')
               .send({})
               .expect(200)
               .then(({ body: { article } }) => {
                 expect(article.votes).to.equal(0);
               });
           });
-          it("status 400: incorrect data type on key value", () => {
+          it('status 400: incorrect data type on key value', () => {
             return request(app)
-              .patch("/api/articles/3")
-              .send({ inc_votes: "seven" })
+              .patch('/api/articles/3')
+              .send({ inc_votes: 'seven' })
               .expect(400)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, Bad Request!");
+                expect(msg).to.equal('Sorry, Bad Request!');
               });
           });
-          it("status 200: unwanted keys on response body, ignores unwanted key and returns increased votes", () => {
+          it('status 200: unwanted keys on response body, ignores unwanted key and returns increased votes', () => {
             return request(app)
-              .patch("/api/articles/3")
+              .patch('/api/articles/3')
               .send({ inc_votes: 2, hello_there: 3 })
               .expect(200)
               .then(({ body: { article } }) => {
                 expect(article.votes).to.equal(2);
               });
           });
-          it("status 400: incorrect data type for article_id", () => {
+          it('status 400: incorrect data type for article_id', () => {
             return request(app)
-              .patch("/api/articles/harry")
+              .patch('/api/articles/harry')
               .send({ inc_votes: 5 })
               .expect(400)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, Bad Request!");
+                expect(msg).to.equal('Sorry, Bad Request!');
               });
           });
-          it("status 404: valid data type but non-existent id, returns not found", () => {
+          it('status 404: valid data type but non-existent id, returns not found', () => {
             return request(app)
-              .patch("/api/articles/1000")
+              .patch('/api/articles/1000')
               .send({ inc_votes: 5 })
               .expect(404)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, not found!");
+                expect(msg).to.equal('Sorry, not found!');
               });
           });
         });
 
-        describe("/comments", () => {
-          describe("INVALID METHODS", () => {
-            it("status 405: invalid method", () => {
-              const invalidMethods = ["delete", "put", "patch"];
+        describe('/comments', () => {
+          describe('INVALID METHODS', () => {
+            it('status 405: invalid method', () => {
+              const invalidMethods = ['delete', 'put', 'patch'];
               const promiseArray = invalidMethods.map(method => {
                 return request(app)
-                  [method]("/api/articles/:article_id/comments")
+                  [method]('/api/articles/:article_id/comments')
                   .expect(405)
                   .then(({ body: { msg } }) => {
-                    expect(msg).to.equal("Sorry, method not allowed!");
+                    expect(msg).to.equal('Sorry, method not allowed!');
                   });
               });
               return Promise.all(promiseArray);
             });
           });
-          describe("GET", () => {
-            it("status 200: responds with array of comments for given article_id", () => {
+          describe('GET', () => {
+            it('status 200: responds with array of comments for given article_id', () => {
               return request(app)
-                .get("/api/articles/9/comments")
+                .get('/api/articles/9/comments')
                 .expect(200)
                 .then(({ body: { comments } }) => {
-                  expect(comments).to.be.an("array");
+                  expect(comments).to.be.an('array');
                   expect(comments[0]).to.contain.keys(
-                    "comment_id",
-                    "votes",
-                    "created_at",
-                    "author",
-                    "body"
+                    'comment_id',
+                    'votes',
+                    'created_at',
+                    'author',
+                    'body'
                   );
                 });
             });
-            it("status 200: responds with array of comments for given article_id sorted by default column created_at", () => {
+            it('status 200: responds with array of comments for given article_id sorted by default column created_at', () => {
               return request(app)
-                .get("/api/articles/1/comments")
+                .get('/api/articles/1/comments')
                 .expect(200)
                 .then(({ body: { comments } }) => {
-                  expect(comments).to.be.an("array");
+                  expect(comments).to.be.an('array');
                   expect(comments[0]).to.contain.keys(
-                    "comment_id",
-                    "votes",
-                    "created_at",
-                    "author",
-                    "body"
+                    'comment_id',
+                    'votes',
+                    'created_at',
+                    'author',
+                    'body'
                   );
-                  expect(comments).to.be.descendingBy("created_at");
+                  expect(comments).to.be.descendingBy('created_at');
                 });
             });
-            it("status 200: responds with array of comments for given article_id sorted by any column, defaulting to created_at", () => {
+            it('status 200: responds with array of comments for given article_id sorted by any column, defaulting to created_at', () => {
               return request(app)
-                .get("/api/articles/1/comments?sort_by=votes")
+                .get('/api/articles/1/comments?sort_by=votes')
                 .expect(200)
                 .then(({ body: { comments } }) => {
-                  expect(comments).to.be.an("array");
+                  expect(comments).to.be.an('array');
                   expect(comments[0]).to.contain.keys(
-                    "comment_id",
-                    "votes",
-                    "created_at",
-                    "author",
-                    "body"
+                    'comment_id',
+                    'votes',
+                    'created_at',
+                    'author',
+                    'body'
                   );
-                  expect(comments).to.be.descendingBy("votes");
+                  expect(comments).to.be.descendingBy('votes');
                 });
             });
-            it("status 200: responds with array of comments for given article_id sorted by any column, defaulting to created_at, order defaulting to descending", () => {
+            it('status 200: responds with array of comments for given article_id sorted by any column, defaulting to created_at, order defaulting to descending', () => {
               return request(app)
-                .get("/api/articles/1/comments?sort_by=votes&order=asc")
+                .get('/api/articles/1/comments?sort_by=votes&order=asc')
                 .expect(200)
                 .then(({ body: { comments } }) => {
-                  expect(comments).to.be.an("array");
+                  expect(comments).to.be.an('array');
                   expect(comments[0]).to.contain.keys(
-                    "comment_id",
-                    "votes",
-                    "created_at",
-                    "author",
-                    "body"
+                    'comment_id',
+                    'votes',
+                    'created_at',
+                    'author',
+                    'body'
                   );
-                  expect(comments).to.be.sortedBy("votes");
+                  expect(comments).to.be.sortedBy('votes');
                 });
             });
-            it("status 200: responds with array of comments, accepting correct query, ignoring nonsense query", () => {
+            it('status 200: responds with array of comments, accepting correct query, ignoring nonsense query', () => {
               return request(app)
-                .get("/api/articles/1/comments?sort_by=votes&elephants=sparrow")
+                .get('/api/articles/1/comments?sort_by=votes&elephants=sparrow')
                 .expect(200)
                 .then(({ body: { comments } }) => {
-                  expect(comments).to.be.an("array");
+                  expect(comments).to.be.an('array');
                   expect(comments[0]).to.contain.keys(
-                    "comment_id",
-                    "votes",
-                    "created_at",
-                    "author",
-                    "body"
+                    'comment_id',
+                    'votes',
+                    'created_at',
+                    'author',
+                    'body'
                   );
-                  expect(comments).to.be.descendingBy("votes");
+                  expect(comments).to.be.descendingBy('votes');
                 });
             });
             it("status 400: when column to be sorted by doesn't exist, returns bad request", () => {
               return request(app)
-                .get("/api/articles/1/comments?sort_by=kangaroos")
+                .get('/api/articles/1/comments?sort_by=kangaroos')
                 .expect(400)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, Bad Request!");
+                  expect(msg).to.equal('Sorry, Bad Request!');
                 });
             });
-            it("status 400: incorrect data type for article_id", () => {
+            it('status 400: incorrect data type for article_id', () => {
               return request(app)
-                .get("/api/articles/harry/comments")
+                .get('/api/articles/harry/comments')
                 .expect(400)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, Bad Request!");
+                  expect(msg).to.equal('Sorry, Bad Request!');
                 });
             });
-            it("status 404: invalid article_id", () => {
+            it('status 404: invalid article_id', () => {
               return request(app)
-                .get("/api/articles/1000/comments")
+                .get('/api/articles/1000/comments')
                 .expect(404)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, not found!");
+                  expect(msg).to.equal('Sorry, not found!');
                 });
             });
           });
-          describe("POST", () => {
-            it("status 201: new comment is created and returned", () => {
+          describe('POST', () => {
+            it('status 201: new comment is created and returned', () => {
               return request(app)
-                .post("/api/articles/3/comments")
+                .post('/api/articles/3/comments')
                 .send({
-                  username: "butter_bridge",
+                  username: 'butter_bridge',
                   body: "well that's given me food for thought"
                 })
                 .expect(201)
@@ -600,173 +600,173 @@ describe("nc_news_api", () => {
                   //expect(comment.created_at).to.be.an.instanceof(Date);
                 });
             });
-            it("status 422: unprocessable entity, username reference does not exist", () => {
+            it('status 422: unprocessable entity, username reference does not exist', () => {
               return request(app)
-                .post("/api/articles/3/comments")
+                .post('/api/articles/3/comments')
                 .send({
                   username: 1,
-                  body: "text here"
+                  body: 'text here'
                 })
                 .expect(422)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, unprocessable entity!");
+                  expect(msg).to.equal('Sorry, unprocessable entity!');
                 });
             });
-            it("status 400: missing column, returns bad request", () => {
+            it('status 400: missing column, returns bad request', () => {
               return request(app)
-                .post("/api/articles/3/comments")
-                .send({ username: "butter_bridge" })
+                .post('/api/articles/3/comments')
+                .send({ username: 'butter_bridge' })
                 .expect(400)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, Bad Request!");
+                  expect(msg).to.equal('Sorry, Bad Request!');
                 });
             });
-            it("status 422: unprocessable entity, article_id reference does not exist", () => {
+            it('status 422: unprocessable entity, article_id reference does not exist', () => {
               return request(app)
-                .post("/api/articles/900/comments")
-                .send({ username: "butter_bridge", body: "text here" })
+                .post('/api/articles/900/comments')
+                .send({ username: 'butter_bridge', body: 'text here' })
                 .expect(422)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, unprocessable entity!");
+                  expect(msg).to.equal('Sorry, unprocessable entity!');
                 });
             });
-            it("status 400: incorrect data type for article_id", () => {
+            it('status 400: incorrect data type for article_id', () => {
               return request(app)
-                .post("/api/articles/harry/comments")
-                .send({ username: "butter_bridge", body: "text here" })
+                .post('/api/articles/harry/comments')
+                .send({ username: 'butter_bridge', body: 'text here' })
                 .expect(400)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, Bad Request!");
+                  expect(msg).to.equal('Sorry, Bad Request!');
                 });
             });
           });
         });
       });
     });
-    describe("/comments", () => {
-      describe("/:comment_id", () => {
-        describe("INVALID METHODS", () => {
-          it("status 405: invalid method", () => {
-            const invalidMethods = ["post", "put", "get"];
+    describe('/comments', () => {
+      describe('/:comment_id', () => {
+        describe('INVALID METHODS', () => {
+          it('status 405: invalid method', () => {
+            const invalidMethods = ['post', 'put', 'get'];
             const promiseArray = invalidMethods.map(method => {
               return request(app)
-                [method]("/api/comments/:comment_id")
+                [method]('/api/comments/:comment_id')
                 .expect(405)
                 .then(({ body: { msg } }) => {
-                  expect(msg).to.equal("Sorry, method not allowed!");
+                  expect(msg).to.equal('Sorry, method not allowed!');
                 });
             });
             return Promise.all(promiseArray);
           });
         });
-        describe("PATCH", () => {
-          it("status 200: responds with a comment with updated vote property", () => {
+        describe('PATCH', () => {
+          it('status 200: responds with a comment with updated vote property', () => {
             return request(app)
-              .patch("/api/comments/9")
+              .patch('/api/comments/9')
               .send({ inc_votes: 5 })
               .expect(200)
               .then(({ body: { comment } }) => {
                 expect(comment).to.contain.keys(
-                  "comment_id",
-                  "author",
-                  "article_id",
-                  "votes",
-                  "created_at",
-                  "body"
+                  'comment_id',
+                  'author',
+                  'article_id',
+                  'votes',
+                  'created_at',
+                  'body'
                 );
-                expect(comment).to.be.an("object");
+                expect(comment).to.be.an('object');
                 expect(comment.votes).to.equal(5);
               });
           });
-          it("status 200: incorrect key, votes not changed", () => {
+          it('status 200: incorrect key, votes not changed', () => {
             return request(app)
-              .patch("/api/comments/9")
+              .patch('/api/comments/9')
               .send({ increase_votes: 5 })
               .expect(200)
               .then(({ body: { comment } }) => {
                 expect(comment.votes).to.equal(0);
               });
           });
-          it("status 200: missing key, votes not changed", () => {
+          it('status 200: missing key, votes not changed', () => {
             return request(app)
-              .patch("/api/comments/9")
+              .patch('/api/comments/9')
               .send({})
               .expect(200)
               .then(({ body: { comment } }) => {
                 expect(comment.votes).to.equal(0);
               });
           });
-          it("status 400: incorrect data type on key value", () => {
+          it('status 400: incorrect data type on key value', () => {
             return request(app)
-              .patch("/api/comments/9")
-              .send({ inc_votes: "seven" })
+              .patch('/api/comments/9')
+              .send({ inc_votes: 'seven' })
               .expect(400)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, Bad Request!");
+                expect(msg).to.equal('Sorry, Bad Request!');
               });
           });
-          it("status 400: incorrect data type for comment_id", () => {
+          it('status 400: incorrect data type for comment_id', () => {
             return request(app)
-              .patch("/api/comments/nine")
+              .patch('/api/comments/nine')
               .send({ inc_votes: 5 })
               .expect(400)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, Bad Request!");
+                expect(msg).to.equal('Sorry, Bad Request!');
               });
           });
-          it("status 404: correct data type but non-existent comment_id, returns not found", () => {
+          it('status 404: correct data type but non-existent comment_id, returns not found', () => {
             return request(app)
-              .patch("/api/comments/1000")
+              .patch('/api/comments/1000')
               .expect(404)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, not found");
+                expect(msg).to.equal('Sorry, not found');
               });
           });
         });
-        describe("DELETE", () => {
-          it("status 204: deletes comment by comment_id and returns no content", () => {
+        describe('DELETE', () => {
+          it('status 204: deletes comment by comment_id and returns no content', () => {
             return request(app)
-              .delete("/api/comments/1")
+              .delete('/api/comments/1')
               .expect(204);
           });
-          it("status 404: returns not found when trying to delete a comment that has already been deleted", () => {
+          it('status 404: returns not found when trying to delete a comment that has already been deleted', () => {
             return request(app)
-              .delete("/api/comments/1")
+              .delete('/api/comments/1')
               .then(() => {
                 return request(app)
-                  .delete("/api/comments/1")
+                  .delete('/api/comments/1')
                   .expect(404)
                   .then(({ body: { msg } }) => {
-                    expect(msg).to.equal("Sorry, not found!");
+                    expect(msg).to.equal('Sorry, not found!');
                   });
               });
           });
-          it("status 404: returns not found when comment_id is valid but non-existent", () => {
+          it('status 404: returns not found when comment_id is valid but non-existent', () => {
             return request(app)
-              .delete("/api/comments/1000")
+              .delete('/api/comments/1000')
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, not found!");
+                expect(msg).to.equal('Sorry, not found!');
               });
           });
-          it("status 400: when given invalid comment_id, returns bad request", () => {
+          it('status 400: when given invalid comment_id, returns bad request', () => {
             return request(app)
-              .delete("/api/comments/lemon")
+              .delete('/api/comments/lemon')
               .expect(400)
               .then(({ body: { msg } }) => {
-                expect(msg).to.equal("Sorry, Bad Request!");
+                expect(msg).to.equal('Sorry, Bad Request!');
               });
           });
         });
       });
     });
   });
-  describe("/*", () => {
-    it("status 404: client provides invalid path", () => {
+  describe('/*', () => {
+    it('status 404: client provides invalid path', () => {
       return request(app)
-        .get("/api/invalid")
+        .get('/api/invalid')
         .expect(404)
         .then(({ body: { msg } }) => {
-          expect(msg).to.equal("Sorry, path not found!");
+          expect(msg).to.equal('Sorry, path not found!');
         });
     });
   });

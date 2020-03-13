@@ -1,17 +1,15 @@
-process.env.NODE_ENV = "test";
-
-const connection = require("../db/connection");
+const connection = require('../db/connection');
 exports.selectAllTopics = () => {
-  return connection.select("*").from("topics");
+  return connection.select('*').from('topics');
 };
 
 exports.checkTopic = topic => {
   return connection
-    .select("*")
-    .from("topics")
-    .where("topics.slug", topic)
+    .select('*')
+    .from('topics')
+    .where('topics.slug', topic)
     .then(topic => {
       if (!topic.length)
-        return Promise.reject({ status: 404, msg: "Sorry, not found" });
+        return Promise.reject({ status: 404, msg: 'Sorry, not found' });
     });
 };
