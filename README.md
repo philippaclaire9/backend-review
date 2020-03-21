@@ -1,6 +1,6 @@
 # NC News
 
-This project was completed as part of the Northcoders Back-End Review. This API allows clients to access a "news" database. The data contained within the database includes articles, topics and comments. Using various endpoints, the client has access to the data and can add to, delete and manipulate the held data within the database.
+This project was completed as part of the Northcoders Back-End Review. This API allows clients to access a "news" database. The data contained within the database includes articles, topics and comments. Using various endpoints, the client has access to the data and can add to, delete and manipulate the held data within the database. The API can be viewed here: http://nc-news-review.herokuapp.com
 
 ## Getting Started
 
@@ -16,26 +16,64 @@ A variety of software is needed to run this API. To install all necessary softwa
 
 ## Testing
 
-Several scripts are included in the package.json to facilitate testing. Running `npm test` will run the app.spec.js file.
+Before running the tests, seed the database. Run `npm run setup-dbs` and then to seed the database in the test environment, run `npm run seed-test`. To seed it in the production environment, run `npm run seed-prod`.
+Further scripts are included in the package.json to facilitate testing. Running `npm test` will run the app.spec.js file in the test environment.
 
 The development environment is set to default.
 
-## Example response
+## Create a knexfile.js
 
-### GET request
+To configure the environments, create a knexfile.js as below.
 
-`GET /api/topics`
-
-#### Response
+### REMEMBER to gitignore the knexfile.js to keep your personal information safe.
 
 ```
-{topics : [
-  { description: 'Code is love, code is life', slug: 'coding' },
-  { description: 'FOOTIE!', slug: 'football' },
-  { description: 'Hey good looking, what you got cooking?', slug: 'cooking' }]
+const { DB_URL } = process.env;
+
+const ENV = process.env.NODE_ENV || "development";
+
+const baseConfig = {
+  client: "pg",
+  migrations: {
+    directory: "./db/migrations"
+  },
+  seeds: {
+    directory: "./db/seeds"
   }
+};
+
+const customConfig = {
+  development: {
+    connection: {
+      database: "nc_news",
+      username: "<Your-PSQL-username-here>",
+      password: "<Your-PSQL-password-here>"
+    }
+  },
+  test: {
+    connection: {
+      database: "nc_news_test",
+      username: "<Your-PSQL-username-here>",
+      password: "<Your-PSQL-password-here>"
+    }
+  },
+  production: {
+    connection: `${DB_URL}?ssl=true`
+  }
+};
+
+module.exports = { ...customConfig[ENV], ...baseConfig };
+
 ```
 
-## Built with
+## Versions
 
-Knex...
+This API was developed with the following versions of Node.js and Postgres but may work with older versions.
+
+Node.js: v13.9.0
+
+Postgres: 10.12
+
+## Endpoints
+
+To view a list of all available endpoints, go to http://nc-news-review.herokuapp.com/api

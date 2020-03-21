@@ -372,7 +372,7 @@ describe('nc_news_api', () => {
           });
         });
         describe('PATCH', () => {
-          it('status 200: will return a treasure with increased votes property', () => {
+          it('status 200: will return an article with increased votes property', () => {
             return request(app)
               .patch('/api/articles/3')
               .send({ inc_votes: 5 })
@@ -390,7 +390,7 @@ describe('nc_news_api', () => {
                 expect(article.votes).to.equal(5);
               });
           });
-          it('status 200: will return a treasure with decreased votes property', () => {
+          it('status 200: will return an article with decreased votes property', () => {
             return request(app)
               .patch('/api/articles/3')
               .send({ inc_votes: -5 })

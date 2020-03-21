@@ -13,7 +13,7 @@
     "migrate-test-latest": "NODE_ENV=test knex migrate:latest && npm run query-db",
     "migrate-test-rollback": "NODE_ENV=test knex migrate:rollback && npm run query-db",
     "seed-test": "NODE_ENV=test knex seed:run",
-    "seed:prod": "NODE_ENV=production DB_URL=$(heroku config:get DATABASE_URL) knex seed:run",
+    "seed-prod": "NODE_ENV=production DB_URL=$(heroku config:get DATABASE_URL) knex seed:run",
     "migrate-latest:prod": "NODE_ENV=production DB_URL=$(heroku config:get DATABASE_URL) knex migrate:latest",
     "migrate-rollback:prod": "NODE_ENV=production DB_URL=$(heroku config:get DATABASE_URL) knex migrate:rollback",
     "start": "node listen.js"
